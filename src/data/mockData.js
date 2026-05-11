@@ -17,7 +17,7 @@ export const initialAgents = {
     name: 'Capital Disponible',
     short: 'Liquidez',
     primary: '$8.5M',
-    secondary: 'pre-aprobados por Bold Capital',
+    secondary: 'pre-aprobados por Bold',
     status: 'good',
     enabled: true,
     autonomy: 'semi', // manual | semi | full
@@ -110,7 +110,7 @@ export const initialOpportunities = [
     reasons: [
       'Compras pollo cada 3 días, promedio 80kg',
       'Históricamente vendes este volumen en 8 días',
-      'Pre-aprobación automática de Bold Capital',
+      'Pre-aprobación automática de Bold',
     ],
     confidence: 0.89,
     status: 'pending', // pending | accepted | ignored
@@ -213,7 +213,7 @@ export const bankingData = {
     date: 'Mañana, 8:00 AM',
   },
 
-  // Bold Capital
+  // Crédito Bold
   capital: {
     available: 8_500_000,
     rate: '3% mensual',

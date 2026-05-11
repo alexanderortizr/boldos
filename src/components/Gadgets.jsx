@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useStore } from '../store';
 
 /* ═══════════════════════════════════════════════════
    MOCK DATA  (todo en 2030)
 ═══════════════════════════════════════════════════ */
-const MOCK_TODAY = new Date('2030-04-22');
+const MOCK_TODAY = new Date('2030-04-22T12:00:00');
 const SPARK = [3.2, 4.1, 3.8, 4.8, 6.2, 7.1, 4.8];
 const MAX_SPARK = Math.max(...SPARK);
 
@@ -87,7 +87,7 @@ function GadgetCapital({ onNavigate, openModal, pushToast }) {
   const handleActivate = (e) => {
     e.stopPropagation();
     openModal?.({
-      title: 'Activar crédito Bold Capital',
+      title: 'Activar crédito Bold',
       body: 'El dinero llega a tu Cuenta Bold en menos de 2 minutos. El pago es automático con el 8% de tus ventas diarias.',
       details: [
         { label: 'Monto',  value: '$8,500,000' },
@@ -103,7 +103,7 @@ function GadgetCapital({ onNavigate, openModal, pushToast }) {
   return (
     <div className="gd-card gd-half gd-capital"
       onClick={() => onNavigate('reports', { section: 'credito' })}>
-      <div className="gd-card-label">Bold Capital</div>
+      <div className="gd-card-label">Crédito Bold</div>
       <div className="gd-half-amount">$8.5M</div>
       <div className="gd-half-sub">Pre-aprobado</div>
       <button className="gd-pill-btn" onClick={handleActivate}>Activar</button>
@@ -185,9 +185,9 @@ function GadgetNomina({ openModal, pushToast }) {
 
 function GadgetProductos({ onNavigate }) {
   return (
-    <div className="gd-card gd-productos" onClick={() => onNavigate('catalog')}>
+    <div className="gd-card gd-productos" onClick={() => onNavigate('reports', { section: 'catalogo' })}>
       <div className="gd-card-header">
-        <span className="gd-card-label">Productos top · esta semana</span>
+        <span className="gd-card-label">Productos top · este mes</span>
         <span className="gd-arrow-dim">›</span>
       </div>
       <div className="gd-prod-list">
@@ -215,7 +215,7 @@ const REGISTRY = {
   'ventas-hoy':    { label: 'Ventas hoy',      size: 'hero', Component: GadgetVentas      },
   'cuenta-bold':   { label: 'Cuenta Bold',      size: 'full', Component: GadgetCuenta      },
   'proximo-pago':  { label: 'Próximo pago',     size: 'half', Component: GadgetProximoPago  },
-  'capital':       { label: 'Bold Capital',     size: 'half', Component: GadgetCapital     },
+  'capital':       { label: 'Crédito Bold',      size: 'half', Component: GadgetCapital     },
   'datafonos':     { label: 'Datáfonos',        size: 'half', Component: GadgetDatafonos   },
   'seguros':       { label: 'Seguros',          size: 'half', Component: GadgetSeguros     },
   'iva':           { label: 'IVA',              size: 'half', Component: GadgetIVA         },
@@ -224,7 +224,7 @@ const REGISTRY = {
 };
 
 const DEFAULT_ACTIVE = [
-  'ventas-hoy', 'cuenta-bold', 'proximo-pago', 'capital', 'datafonos', 'seguros',
+  'ventas-hoy', 'cuenta-bold', 'proximo-pago', 'capital', 'datafonos', 'seguros', 'productos-top',
 ];
 
 /* ═══════════════════════════════════════════════════
@@ -255,11 +255,10 @@ export default function Gadgets({ onNavigate }) {
   const [dragIdx, setDragIdx] = useState(null);
   const [dropIdx, setDropIdx] = useState(null);
 
-  /* ── Drag handlers ── */
+  /* ── Mouse drag handlers (desktop) ── */
   const onDragStart = (e, idx) => {
     setDragIdx(idx);
     e.dataTransfer.effectAllowed = 'move';
-    // Required for Firefox
     e.dataTransfer.setData('text/plain', String(idx));
   };
 
@@ -284,6 +283,47 @@ export default function Gadgets({ onNavigate }) {
   const onDragEnd = () => {
     setDragIdx(null);
     setDropIdx(null);
+  };
+
+  /* ── Touch drag handlers (mobile) ── */
+  const touch = useRef({ dragging: false, fromIdx: null });
+
+  const onTouchStart = (e, idx) => {
+    touch.current = { dragging: true, fromIdx: idx };
+    setDragIdx(idx);
+  };
+
+  const onTouchMove = (e) => {
+    if (!touch.current.dragging) return;
+    const { clientX, clientY } = e.touches[0];
+    // Find which card is under the finger
+    const el = document.elementFromPoint(clientX, clientY);
+    const item = el?.closest('[data-gd-idx]');
+    if (item) {
+      const targetIdx = parseInt(item.dataset.gdIdx, 10);
+      if (!isNaN(targetIdx) && targetIdx !== touch.current.fromIdx) {
+        setDropIdx(targetIdx);
+      }
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (!touch.current.dragging) return;
+    setDragIdx(prev => {
+      setDropIdx(prevDrop => {
+        if (prev !== null && prevDrop !== null && prev !== prevDrop) {
+          setActive(a => {
+            const next = [...a];
+            const [moved] = next.splice(prev, 1);
+            next.splice(prevDrop, 0, moved);
+            return next;
+          });
+        }
+        return null;
+      });
+      return null;
+    });
+    touch.current = { dragging: false, fromIdx: null };
   };
 
   /* ── Add / Remove ── */
@@ -336,6 +376,7 @@ export default function Gadgets({ onNavigate }) {
             return (
               <div
                 key={id}
+                data-gd-idx={i}
                 className={[
                   'gd-item',
                   `gd-size-${size}`,
@@ -348,6 +389,9 @@ export default function Gadgets({ onNavigate }) {
                 onDragOver={editMode  ? (e) => onDragOver(e, i)  : undefined}
                 onDrop={editMode      ? (e) => onDrop(e, i)      : undefined}
                 onDragEnd={editMode   ? onDragEnd                  : undefined}
+                onTouchStart={editMode ? (e) => onTouchStart(e, i) : undefined}
+                onTouchMove={editMode  ? onTouchMove               : undefined}
+                onTouchEnd={editMode   ? onTouchEnd                : undefined}
               >
                 {/* Drag handle — top-right in edit mode */}
                 {editMode && <DragHandle />}

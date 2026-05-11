@@ -3,10 +3,11 @@ import { IconSparkle, IconSend } from './Icons';
 
 /* ─── Product sections ─── */
 const SECTIONS = [
-  { id: 'ventas',  label: 'Ventas'      },
-  { id: 'banca',   label: 'Banca'       },
-  { id: 'credito', label: 'Crédito'     },
-  { id: 'seguros', label: 'Seguros'     },
+  { id: 'ventas',   label: 'Ventas'    },
+  { id: 'banca',    label: 'Banca'     },
+  { id: 'credito',  label: 'Crédito'   },
+  { id: 'seguros',  label: 'Seguros'   },
+  { id: 'catalogo', label: 'Catálogo'  },
 ];
 
 const PERIODS = [
@@ -163,11 +164,11 @@ const POLICIES = [
 ══════════════════════════════════════ */
 const CHAT_REPLIES = {
   ventas: [
-    { pattern: /mejor día|top día/i,          text: 'Tu mejor día esta semana fue el sábado con $7.1M — 67 transacciones. Ticket promedio $106k.' },
-    { pattern: /hora|pico/i,                   text: 'Hora pico: 12:00–13:00 con el 28% de las ventas. Segundo pico: 19:00–20:00 con el 18%.' },
-    { pattern: /producto|top|más vend/i,       text: 'Bandeja paisa lidera: 142 unidades · $3.97M. El margen estimado es el más alto de tu carta.' },
-    { pattern: /canal|datáfono|qr|link/i,      text: 'Datáfono 58%, QR 27%, Link 15%. QR creció +4 puntos vs el mes pasado.' },
-    { pattern: /crecer|crecimiento/i,          text: 'Creciste +12% esta semana. Si mantienes el ritmo, cerrarás el mes en ~$180M.' },
+    { pattern: /mejor|top día/i,              text: 'Tu mejor día esta semana fue el sábado con $7.1M — 67 transacciones. Ticket promedio $106k.' },
+    { pattern: /hora|pico/i,                  text: 'Hora pico: 12:00–13:00 con el 28% de las ventas. Segundo pico: 19:00–20:00 con el 18%.' },
+    { pattern: /producto|top|más vend/i,      text: 'Bandeja paisa lidera: 142 unidades · $3.97M. El margen estimado es el más alto de tu carta.' },
+    { pattern: /canal|datáfono|qr|link/i,     text: 'Datáfono 58%, QR 27%, Link 15%. QR creció +4 puntos vs el mes pasado.' },
+    { pattern: /crecer|crecimiento/i,         text: 'Creciste +12% esta semana. Si mantienes el ritmo, cerrarás el mes en ~$180M.' },
   ],
   banca: [
     { pattern: /saldo|cuánto tengo/i,          text: 'Saldo Cuenta Bold: $12.84M disponibles ahora mismo.' },
@@ -181,11 +182,18 @@ const CHAT_REPLIES = {
     { pattern: /historial|anterior/i,          text: 'Tienes 2 créditos saldados: Feb 2030 ($3.2M en 28 días) y Dic 2029 ($5M en 35 días). Score excelente.' },
   ],
   seguros: [
-    { pattern: /cuánto cuesta|prima|precio/i,  text: 'Tienes 3 pólizas activas por $395k/mes. RC $120k · Todo Riesgo $180k · Accidentes Lab. $95k. Sin cobertura: Sustracción y Incendio.' },
-    { pattern: /responsabilidad|clientes|accidente/i, text: 'Tu RC cubre accidentes a clientes y terceros dentro del local hasta $500M por evento. Ideal para un restaurante — una caída puede generar demandas importantes.' },
-    { pattern: /siniestro|daño|robo|incendio/i, text: '$0 en siniestros en los últimos 6 meses. Sin embargo, Sustracción de Dinero y Incendio no están activas — son los dos riesgos más frecuentes en restaurantes.' },
-    { pattern: /renovación|vence/i,            text: 'Las 3 pólizas activas renuevan el 1 de agosto 2030 automáticamente. No tienes que hacer nada.' },
-    { pattern: /emplead|laboral|arl/i,         text: 'Tus 18 empleados están cubiertos con la ARL complementaria Bold. $25M por trabajador en caso de accidente laboral.' },
+    { pattern: /cuánto cuesta|prima|precio/i,              text: 'Tienes 3 pólizas activas por $395k/mes. RC $120k · Todo Riesgo $180k · Accidentes Lab. $95k. Sin cobertura: Sustracción y Incendio.' },
+    { pattern: /riesgo|falt|brecha|sin cubrir|me falta/i,  text: 'Te faltan 2 coberturas clave: Sustracción de Dinero ($65k/mes — cubre efectivo en caja hasta $5M) e Incendio y Aliados ($85k/mes — cubre pérdidas estructurales hasta $120M). Son las más comunes en restaurantes de tu tamaño.' },
+    { pattern: /RC|cubre|responsabilidad|clientes|accidente/i, text: 'Tu RC (Responsabilidad Civil) cubre accidentes a clientes y terceros dentro del local hasta $500M por evento. Incluye daños a terceros, demandas por lesiones y daños materiales. Prima actual: $120k/mes.' },
+    { pattern: /siniestro|daño|robo|incendio/i,            text: '$0 en siniestros en los últimos 6 meses. Sin embargo, Sustracción de Dinero y Incendio no están activas — son los dos riesgos más frecuentes en restaurantes.' },
+    { pattern: /renovación|vence/i,                        text: 'Las 3 pólizas activas renuevan el 1 de agosto 2030 automáticamente. No tienes que hacer nada.' },
+    { pattern: /emplead|laboral|arl/i,                     text: 'Tus 18 empleados están cubiertos con la ARL complementaria Bold. $25M por trabajador en caso de accidente laboral.' },
+  ],
+  catalogo: [
+    { pattern: /estrella|top|mejor producto/i,     text: 'Bandeja paisa es tu producto estrella: 142 unidades · $3.97M este mes. El ajiaco viene segundo con $2.35M.' },
+    { pattern: /sin venta|no tiene|rotac|muerto/i, text: '3 productos sin ventas en 30 días: Cazuela de mariscos, Lulada y Agua con gas. Considera desactivarlos para simplificar tu carta.' },
+    { pattern: /categor|secci|plato/i,             text: 'Platos fuertes generan el 67% del ingreso. Bebidas tienen alta rotación pero bajo margen. Sopas son las más consistentes.' },
+    { pattern: /precio|subir|debo|ajust/i,         text: 'Tu ticket promedio es $102.5k. Un ajuste del 5% en Bandeja paisa y Arroz con pollo añadiría ~$350k/mes sin impacto en demanda histórica.' },
   ],
 };
 
@@ -198,10 +206,11 @@ const fmt = (v) => {
 let rid = 0;
 const nextId = () => `r${++rid}`;
 const SEED = {
-  ventas:  '¿Qué quieres analizar? Puedo responder sobre ventas, canales, productos o tendencias.',
-  banca:   '¿Qué quieres saber de tu Cuenta Bold? Pregúntame sobre saldo, movimientos o provisiones.',
-  credito: 'Puedo explicarte tu crédito disponible, simular pagos o mostrarte tu historial.',
-  seguros: 'Tienes 3 coberturas activas y 2 brechas de riesgo. Pregúntame sobre cualquier póliza, prima, siniestro o cobertura recomendada para tu negocio.',
+  ventas:   '¿Qué quieres analizar? Puedo responder sobre ventas, canales, productos o tendencias.',
+  banca:    '¿Qué quieres saber de tu Cuenta Bold? Pregúntame sobre saldo, movimientos o provisiones.',
+  credito:  'Puedo explicarte tu crédito disponible, simular pagos o mostrarte tu historial.',
+  seguros:  'Tienes 3 coberturas activas y 2 brechas de riesgo. Pregúntame sobre cualquier póliza, prima, siniestro o cobertura recomendada para tu negocio.',
+  catalogo: 'Tu catálogo tiene 10 productos activos. La Bandeja paisa lidera con 142 ventas este mes. ¿Qué quieres revisar?',
 };
 
 /* ══════════════════════════════════════
@@ -538,6 +547,121 @@ function SectionSeguros({ onAddCoverage }) {
 }
 
 /* ══════════════════════════════════════
+   CATÁLOGO SECTION
+══════════════════════════════════════ */
+const CAT_PRODUCTS = [
+  { name: 'Bandeja paisa',       category: 'Platos fuertes', sales: 142, price: 28000, emoji: '🍽️' },
+  { name: 'Ajiaco bogotano',     category: 'Sopas',          sales: 98,  price: 24000, emoji: '🥘' },
+  { name: 'Limonada de coco',    category: 'Bebidas',        sales: 87,  price: 8000,  emoji: '🥥' },
+  { name: 'Empanadas x3',        category: 'Entradas',       sales: 74,  price: 12000, emoji: '🫔' },
+  { name: 'Arroz con pollo',     category: 'Platos fuertes', sales: 68,  price: 22000, emoji: '🍗' },
+  { name: 'Sancocho de gallina', category: 'Sopas',          sales: 41,  price: 26000, emoji: '🍲' },
+  { name: 'Patacones con hogao', category: 'Entradas',       sales: 38,  price: 9000,  emoji: '🍌' },
+  { name: 'Jugo natural',        category: 'Bebidas',        sales: 29,  price: 6000,  emoji: '🍊' },
+  { name: 'Cazuela de mariscos', category: 'Platos fuertes', sales: 0,   price: 35000, emoji: '🦐' },
+  { name: 'Lulada',              category: 'Bebidas',        sales: 0,   price: 7000,  emoji: '🍹' },
+  { name: 'Agua con gas',        category: 'Bebidas',        sales: 0,   price: 3500,  emoji: '💧' },
+];
+const CAT_CATEGORIES = ['Platos fuertes', 'Sopas', 'Entradas', 'Bebidas'];
+
+function SectionCatalogo() {
+  const withSales = CAT_PRODUCTS.filter(p => p.sales > 0);
+  const noSales   = CAT_PRODUCTS.filter(p => p.sales === 0);
+  const totalRev  = CAT_PRODUCTS.reduce((s, p) => s + p.sales * p.price, 0);
+  const maxSales  = Math.max(...withSales.map(p => p.sales));
+
+  const catBreakdown = CAT_CATEGORIES.map(cat => {
+    const prods = CAT_PRODUCTS.filter(p => p.category === cat);
+    const rev   = prods.reduce((s, p) => s + p.sales * p.price, 0);
+    return { cat, rev, pct: Math.round((rev / totalRev) * 100) };
+  }).sort((a, b) => b.rev - a.rev);
+  const maxCatRev = Math.max(...catBreakdown.map(c => c.rev));
+
+  return (
+    <>
+      {/* Summary */}
+      <div className="rep-summary">
+        <div className="rep-sum-card primary">
+          <div className="rep-sum-label">Ingresos del mes</div>
+          <div className="rep-sum-value">{fmt(totalRev)}</div>
+          <div className="rep-sum-growth">+9% vs mes anterior</div>
+        </div>
+        <div className="rep-sum-pair">
+          <div className="rep-sum-card">
+            <div className="rep-sum-label">Productos activos</div>
+            <div className="rep-sum-value sm">{CAT_PRODUCTS.length}</div>
+          </div>
+          <div className="rep-sum-card">
+            <div className="rep-sum-label">Sin ventas</div>
+            <div className="rep-sum-value sm" style={{ color: 'var(--coral)' }}>{noSales.length}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Top productos */}
+      <div className="rep-section">
+        <div className="rep-section-title">Top productos por ventas</div>
+        <div className="rep-card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {withSales.slice(0, 5).map((p) => (
+            <div key={p.name} className="cat-rep-row">
+              <span className="cat-rep-emoji">{p.emoji}</span>
+              <div className="cat-rep-info">
+                <div className="cat-rep-name">{p.name}</div>
+                <div className="cat-rep-track">
+                  <div className="cat-rep-bar" style={{ width: `${(p.sales / maxSales) * 100}%` }} />
+                </div>
+              </div>
+              <div className="cat-rep-stats">
+                <div className="cat-rep-units">{p.sales} uds</div>
+                <div className="cat-rep-rev">{fmt(p.sales * p.price)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Categorías */}
+      <div className="rep-section">
+        <div className="rep-section-title">Ingresos por categoría</div>
+        <div className="rep-card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {catBreakdown.map(c => (
+            <div key={c.cat} className="cat-rep-cat-row">
+              <div className="cat-rep-cat-meta">
+                <span className="cat-rep-cat-name">{c.cat}</span>
+                <span className="cat-rep-cat-pct">{c.pct}%</span>
+              </div>
+              <div className="cat-rep-cat-track">
+                <div className="cat-rep-cat-bar" style={{ width: `${(c.rev / maxCatRev) * 100}%` }} />
+              </div>
+              <span className="cat-rep-cat-rev">{fmt(c.rev)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Sin ventas */}
+      {noSales.length > 0 && (
+        <div className="rep-section">
+          <div className="rep-section-title">Sin movimiento (30 días)</div>
+          <div className="rep-card" style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {noSales.map(p => (
+              <div key={p.name} className="cat-rep-no-sales-row">
+                <span className="cat-rep-emoji">{p.emoji}</span>
+                <div className="cat-rep-no-sales-info">
+                  <div className="cat-rep-name">{p.name}</div>
+                  <div className="cat-rep-no-sales-sub">{p.category} · {fmt(p.price)}</div>
+                </div>
+                <span className="cat-rep-no-sales-badge">Sin ventas</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ══════════════════════════════════════
    ANALYTICS CHAT
 ══════════════════════════════════════ */
 function AnalyticsChat({ section }) {
@@ -547,19 +671,22 @@ function AnalyticsChat({ section }) {
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const bottomRef = useRef(null);
-  const inputRef = useRef(null);
+  const inputRef     = useRef(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     setMessages([{ id: 'r0', from: 'bold', text: SEED[section] }]);
+    isFirstRender.current = true; // reset on section change
   }, [section]);
 
   useEffect(() => {
+    // Skip the very first render — don't pull the page to the bottom on load
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
 
-  const send = () => {
-    const text = input.trim();
-    if (!text) return;
+  const sendText = (text) => {
+    if (!text.trim()) return;
     setInput('');
     setMessages(m => [...m, { id: nextId(), from: 'user', text }]);
     setTyping(true);
@@ -572,11 +699,14 @@ function AnalyticsChat({ section }) {
     }, 1000);
   };
 
+  const send = () => sendText(input.trim());
+
   const QUICK = {
-    ventas:  ['¿Cuál fue mi mejor día?', '¿Hora pico?', '¿Producto top?'],
-    banca:   ['¿Cuál es mi saldo?', '¿Cuándo llega el próximo pago?', '¿Cuánto provisioné de IVA?'],
-    credito: ['¿Cuánto tengo disponible?', '¿Cuánto pagaría por día?', 'Ver historial'],
-    seguros: ['¿Cuánto pago de primas?', '¿Qué riesgos me faltan?', '¿Qué cubre la RC?'],
+    ventas:   ['¿Cuál fue mi mejor día?', '¿Hora pico?', '¿Producto top?'],
+    banca:    ['¿Cuál es mi saldo?', '¿Cuándo llega el próximo pago?', '¿Cuánto provisioné de IVA?'],
+    credito:  ['¿Cuánto tengo disponible?', '¿Cuánto pagaría por día?', 'Ver historial'],
+    seguros:  ['¿Cuánto pago de primas?', '¿Qué riesgos me faltan?', '¿Qué cubre la RC?'],
+    catalogo: ['¿Cuál es mi producto estrella?', '¿Qué productos no tienen ventas?', '¿Debo subir precios?', '¿Qué categoría vende más?'],
   };
 
   return (
@@ -603,7 +733,7 @@ function AnalyticsChat({ section }) {
         <div className="rep-quick-qs">
           {(QUICK[section] || []).map(q => (
             <button key={q} className="rep-quick-chip"
-              onClick={() => { setInput(q); inputRef.current?.focus(); }}>{q}</button>
+              onClick={() => sendText(q)}>{q}</button>
           ))}
         </div>
         <div className="rep-chat-input-row">
@@ -636,7 +766,7 @@ export default function Reports({ onBack, defaultSection = 'ventas', pushToast, 
 
   const handleActivateCredit = () => {
     openModal?.({
-      title: 'Activar crédito Bold Capital',
+      title: 'Activar crédito Bold',
       body: 'El dinero llega a tu Cuenta Bold en menos de 2 minutos. El pago es automático con el 8% de tus ventas diarias.',
       details: [
         { label: 'Monto',   value: '$8,500,000' },
@@ -686,10 +816,11 @@ export default function Reports({ onBack, defaultSection = 'ventas', pushToast, 
 
       {/* Section content */}
       <div className="rep-scroll" ref={scrollRef}>
-        {section === 'ventas'  && <SectionVentas />}
-        {section === 'banca'   && <SectionBanca />}
-        {section === 'credito' && <SectionCredito onActivate={handleActivateCredit} />}
-        {section === 'seguros' && <SectionSeguros onAddCoverage={handleAddCoverage} />}
+        {section === 'ventas'   && <SectionVentas />}
+        {section === 'banca'    && <SectionBanca />}
+        {section === 'credito'  && <SectionCredito onActivate={handleActivateCredit} />}
+        {section === 'seguros'  && <SectionSeguros onAddCoverage={handleAddCoverage} />}
+        {section === 'catalogo' && <SectionCatalogo />}
 
         <AnalyticsChat section={section} />
         <div style={{ height: 120 }} />
