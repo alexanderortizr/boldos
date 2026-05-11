@@ -10,6 +10,7 @@ import Chat from './components/Chat';
 import CashFlow from './components/CashFlow';
 import Catalog from './components/Catalog';
 import Reports from './components/Reports';
+import Predict from './components/Predict';
 import BottomNav from './components/BottomNav';
 import Toasts from './components/Toasts';
 import Modal from './components/Modal';
@@ -25,37 +26,47 @@ function Shell() {
     setPage(to);
     setPageParams(params);
     window.scrollTo({ top: 0, behavior: 'auto' });
+    document.querySelector('.shell-content')?.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   return (
     <div className="app">
-      <div className="shell">
-        <div key={page} className="page-fade">
-          {page === 'negocio'  && <Gadgets  onNavigate={navigate} />}
-          {page === 'payments' && <Payments onNavigate={navigate} />}
-          {page === 'chat' && <Chat onNavigate={navigate} />}
-          {page === 'cashflow' && <CashFlow onBack={() => navigate(pageParams.from || 'home')} />}
-          {page === 'opportunity' && <OpportunityDetail onBack={() => navigate('chat')} />}
-          {page === 'log' && <ActionsLog onBack={() => navigate('chat')} />}
-          {page === 'config' && <Settings onBack={() => navigate('chat')} />}
-          {page === 'catalog' && <Catalog onBack={() => navigate('chat')} />}
-          {page === 'reports' && (
-            <Reports
-              onBack={() => navigate('chat')}
-              defaultSection={pageParams.section || 'ventas'}
-              pushToast={pushToast}
-              openModal={openModal}
-            />
-          )}
-          {page === 'agent' && (
-            <AgentDetail agentId={pageParams.agentId} onBack={() => navigate('chat')} onNavigate={navigate} />
-          )}
+      <div className="phone-frame">
+        <div className="dynamic-island" />
+
+        <div className="shell">
+          <div className="shell-content">
+            <div key={page} className="page-fade">
+              {page === 'negocio'  && <Gadgets  onNavigate={navigate} />}
+              {page === 'payments' && <Payments onNavigate={navigate} />}
+              {page === 'chat' && <Chat onNavigate={navigate} />}
+              {page === 'cashflow' && <CashFlow onBack={() => navigate(pageParams.from || 'home')} />}
+              {page === 'opportunity' && <OpportunityDetail onBack={() => navigate('chat')} />}
+              {page === 'log' && <ActionsLog onBack={() => navigate('chat')} />}
+              {page === 'config' && <Settings onBack={() => navigate('chat')} />}
+              {page === 'catalog' && <Catalog onBack={() => navigate('chat')} />}
+              {page === 'reports' && (
+                <Reports
+                  onBack={() => navigate('chat')}
+                  defaultSection={pageParams.section || 'ventas'}
+                  pushToast={pushToast}
+                  openModal={openModal}
+                />
+              )}
+              {page === 'agent' && (
+                <AgentDetail agentId={pageParams.agentId} onBack={() => navigate('chat')} onNavigate={navigate} />
+              )}
+              {page === 'predict' && <Predict onBack={() => navigate('chat')} />}
+            </div>
+          </div>
+
+          <BottomNav
+            current={['agent', 'opportunity', 'cashflow', 'log', 'chat', 'catalog', 'reports', 'predict'].includes(page) ? 'chat' : (page === 'payments' ? 'negocio' : page)}
+            onNavigate={navigate}
+          />
         </div>
 
-        <BottomNav
-          current={['agent', 'opportunity', 'cashflow', 'log', 'chat', 'catalog', 'reports'].includes(page) ? 'chat' : (page === 'payments' ? 'negocio' : page)}
-          onNavigate={navigate}
-        />
+        <div className="home-bar" />
       </div>
 
       <NotificationsPanel

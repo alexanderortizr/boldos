@@ -50,7 +50,7 @@ const BOT_REPLIES = {
   },
   accept_opp: {
     type: 'action_done',
-    text: 'Bold Capital desembolsó $816,000 a Agroavícola XYZ. El pago se descuenta con el 8% de tus ventas diarias — en ~12 días queda saldado. Ahorraste $166k netos.',
+    text: 'Bold desembolsó $816,000 a Agroavícola XYZ. El pago se descuenta con el 8% de tus ventas diarias — en ~12 días queda saldado. Ahorraste $166k netos.',
     badge: { label: '$166k ahorrados', level: 'success' },
   },
   ignore_opp: {
@@ -101,6 +101,51 @@ const BOT_REPLIES = {
   cancel_policy: {
     type: 'text',
     text: '¿Cuál quieres revisar o cancelar? Recuerda que la RC es obligatoria para establecimientos con atención al público en Colombia.',
+  },
+
+  // ── Inversiones — Turn 2 ──
+  open_cdt: {
+    type: 'text',
+    text: '¿A qué plazo quieres abrirlo? Tienes $10M disponibles. La tasa sube con el plazo:',
+    actions: [
+      { label: '30 días · 7.5% EA',  action: 'cdt_30',  style: 'ghost'   },
+      { label: '60 días · 8.0% EA',  action: 'cdt_60',  style: 'ghost'   },
+      { label: '90 días · 8.5% EA',  action: 'cdt_90',  style: 'primary' },
+      { label: '180 días · 9.2% EA', action: 'cdt_180', style: 'ghost'   },
+    ],
+  },
+  // ── Inversiones — Turn 3 (plazo elegido) ──
+  cdt_30: {
+    type: 'action_done',
+    text: 'CDT abierto a 30 días al 7.5% EA. Retorno estimado: $62,500. Lo renovamos automáticamente al vencimiento.',
+    badge: { label: 'CDT activo · 30 días · 7.5% EA', level: 'success' },
+  },
+  cdt_60: {
+    type: 'action_done',
+    text: 'CDT abierto a 60 días al 8.0% EA. Retorno estimado: $133,000. Lo renovamos automáticamente al vencimiento.',
+    badge: { label: 'CDT activo · 60 días · 8.0% EA', level: 'success' },
+  },
+  cdt_90: {
+    type: 'action_done',
+    text: 'CDT abierto a 90 días al 8.5% EA. Retorno estimado: $212,500. Lo renovamos automáticamente al vencimiento.',
+    badge: { label: 'CDT activo · 90 días · 8.5% EA', level: 'success' },
+  },
+  cdt_180: {
+    type: 'action_done',
+    text: 'CDT abierto a 180 días al 9.2% EA. Retorno estimado: $460,000 — tu mejor opción de rendimiento. Lo renovamos automáticamente al vencimiento.',
+    badge: { label: 'CDT activo · 180 días · 9.2% EA', level: 'success' },
+  },
+  view_bolsillos: {
+    type: 'text',
+    text: 'Tienes 3 bolsillos activos: Fondo emergencias ($2M), Vacaciones 2030 ($1.2M) y Equipo nuevo ($1M). Todos generando 4.2% EA automáticamente. ¿Abro uno nuevo?',
+    actions: [
+      { label: 'Nuevo bolsillo', action: 'new_bolsillo', style: 'primary' },
+    ],
+  },
+  new_bolsillo: {
+    type: 'action_done',
+    text: 'Bolsillo creado y activo. Empieza a generar 4.2% EA desde el primer peso que deposites.',
+    badge: { label: 'Bolsillo creado · 4.2% EA', level: 'success' },
   },
 
   // ── Catálogo — Turn 2 ──
@@ -208,6 +253,17 @@ const BOT_REPLIES = {
 
 /* ─── Free-text keyword matching — ALL Bold products ─── */
 const KEYWORD_REPLIES = [
+  // Predicción / futuro
+  {
+    pattern: /predic|próxim|semana que|qué va a pasar|cuánto voy a vend|proyecc|forecast|futuro/i,
+    reply: {
+      type: 'text',
+      text: 'Esta semana proyecta $35.6M — tu mejor semana del mes. El sábado solo puede llegar a $7.8M. Tengo el análisis completo de los próximos 7 y 30 días listo.',
+      actions: [
+        { label: 'Ver Bold Predict', action: 'open_predict', style: 'primary' },
+      ],
+    },
+  },
   // Pagos — cobros del día
   {
     pattern: /cobros? hoy|cómo van mis cobros|pagos hoy|ventas hoy/i,
@@ -252,7 +308,7 @@ const KEYWORD_REPLIES = [
     pattern: /cr[eé]dito|capital|pr[eé]stamo/i,
     reply: {
       type: 'text',
-      text: '$8.5M pre-aprobados con Bold Capital al 3% mensual. Pago automático con el 8% de tus ventas — quedaría saldado en ~32 días. ¿Activo ahora o simulo el plan de pagos primero?',
+      text: '$8.5M pre-aprobados con Crédito Bold al 3% mensual. Pago automático con el 8% de tus ventas — quedaría saldado en ~32 días. ¿Activo ahora o simulo el plan de pagos primero?',
       actions: [
         { label: 'Simular plan de pagos', action: 'simulate_credit', style: 'ghost' },
         { label: 'Activar crédito', action: 'activate_credit', style: 'primary' },
@@ -429,6 +485,11 @@ export default function Chat({ onNavigate }) {
       return;
     }
 
+    if (action === 'open_predict') {
+      onNavigate('predict');
+      return;
+    }
+
     if (action === 'accept_opp') {
       if (!activeOpportunity) {
         markDone(action);
@@ -437,7 +498,7 @@ export default function Chat({ onNavigate }) {
       }
       openModal({
         title: 'Confirmar compra',
-        body: 'Bold Capital desembolsará el monto al proveedor y empezará el pago automático con tus ventas diarias.',
+        body: 'Bold desembolsará el monto al proveedor y empezará el pago automático con tus ventas diarias.',
         details: [
           { label: 'Proveedor', value: activeOpportunity.supplier },
           { label: 'Monto', value: formatCOPFull(activeOpportunity.metrics.amount) },
@@ -489,16 +550,34 @@ export default function Chat({ onNavigate }) {
 
   return (
     <div className="chat-shell">
-      {/* Header */}
+      {/* ── OS Command Bar ── */}
       <div className="chat-header">
-        <div className="chat-header-avatar">
-          <IconSparkle width={18} height={18} />
+        <div className="chat-header-top">
+          <div className="chat-header-biz">La Cocina de Claudia</div>
+          <div className="chat-header-live">
+            <span className="chat-live-dot" />
+            <span className="chat-live-label">Bold OS activo</span>
+          </div>
         </div>
-        <div className="chat-header-info">
-          <div className="chat-header-name">Bold OS</div>
-          <div className="chat-header-status">
-            <span className="chat-status-dot" />
-            Activo · responde al instante
+        <div className="chat-header-kpis">
+          <div className="chat-kpi">
+            <span className="chat-kpi-val">$4.8M</span>
+            <span className="chat-kpi-lbl">hoy</span>
+          </div>
+          <div className="chat-kpi-sep" />
+          <div className="chat-kpi">
+            <span className="chat-kpi-val green">+8%</span>
+            <span className="chat-kpi-lbl">vs ayer</span>
+          </div>
+          <div className="chat-kpi-sep" />
+          <div className="chat-kpi">
+            <span className="chat-kpi-val">47</span>
+            <span className="chat-kpi-lbl">transacciones</span>
+          </div>
+          <div className="chat-kpi-sep" />
+          <div className="chat-kpi">
+            <span className="chat-kpi-val orange">1</span>
+            <span className="chat-kpi-lbl">alerta</span>
           </div>
         </div>
       </div>
@@ -506,12 +585,14 @@ export default function Chat({ onNavigate }) {
       {/* Product shortcuts */}
       <div className="chat-shortcuts">
         {[
-          { label: 'Pagos',    text: '¿Cómo van mis cobros hoy?'          },
-          { label: 'Banca',    text: '¿Cómo está mi cuenta Bold?'        },
-          { label: 'Crédito',  text: '¿Cuánto crédito tengo disponible?' },
-          { label: 'Seguros',  text: '¿Cómo están mis seguros?'          },
+          { label: 'Pagos',    paymentsCard: true                          },
+          { label: 'Banca',    bancaCard: true                             },
+          { label: 'Crédito',  creditoCard: true                          },
+          { label: 'Seguros',      segurosCard:     true },
+          { label: 'Inversiones', inversionesCard: true },
           { label: 'Catálogo',  navigate: 'catalog'  },
           { label: 'Reportes',  navigate: 'reports'  },
+          { label: '🔮 Predicción', navigate: 'predict' },
           { label: 'Datáfonos', text: '¿Cómo están mis datáfonos?' },
         ].map((s) => (
           <button
@@ -519,6 +600,62 @@ export default function Chat({ onNavigate }) {
             className="chat-shortcut-chip"
             onClick={() => {
               if (s.navigate) { onNavigate(s.navigate, s.section ? { section: s.section } : {}); return; }
+
+              // Inversiones — wow card
+              if (s.inversionesCard) {
+                pushMsg({ from: 'user', type: 'text', text: '¿Cómo están mis inversiones?' });
+                setTyping(true);
+                setTimeout(() => {
+                  setTyping(false);
+                  pushMsg({ from: 'bold', type: 'inversiones_card' });
+                }, 900);
+                return;
+              }
+
+              // Seguros — wow card
+              if (s.segurosCard) {
+                pushMsg({ from: 'user', type: 'text', text: '¿Cómo están mis seguros?' });
+                setTyping(true);
+                setTimeout(() => {
+                  setTyping(false);
+                  pushMsg({ from: 'bold', type: 'seguros_card' });
+                }, 900);
+                return;
+              }
+
+              // Crédito — wow card
+              if (s.creditoCard) {
+                pushMsg({ from: 'user', type: 'text', text: '¿Cuánto crédito tengo disponible?' });
+                setTyping(true);
+                setTimeout(() => {
+                  setTyping(false);
+                  pushMsg({ from: 'bold', type: 'credito_card' });
+                }, 900);
+                return;
+              }
+
+              // Banca — wow card
+              if (s.bancaCard) {
+                pushMsg({ from: 'user', type: 'text', text: '¿Cómo está mi cuenta Bold?' });
+                setTyping(true);
+                setTimeout(() => {
+                  setTyping(false);
+                  pushMsg({ from: 'bold', type: 'banca_card' });
+                }, 900);
+                return;
+              }
+
+              // Pagos — wow card
+              if (s.paymentsCard) {
+                pushMsg({ from: 'user', type: 'text', text: '¿Cómo van mis cobros hoy?' });
+                setTyping(true);
+                setTimeout(() => {
+                  setTyping(false);
+                  pushMsg({ from: 'bold', type: 'payments_card' });
+                }, 900);
+                return;
+              }
+
               pushMsg({ from: 'user', type: 'text', text: s.text });
               const match = KEYWORD_REPLIES.find((k) => k.pattern.test(s.text));
               setTyping(true);
@@ -546,9 +683,12 @@ export default function Chat({ onNavigate }) {
           />
         ))}
         {typing && (
-          <div className="chat-row bold">
-            <div className="chat-avatar"><IconSparkle width={12} height={12} /></div>
-            <div className="chat-bubble bold typing">
+          <div className="os-msg os-msg-typing">
+            <div className="os-msg-header">
+              <span className="os-msg-source"><IconSparkle width={9} height={9} />Bold OS</span>
+              <span className="os-processing">Procesando</span>
+            </div>
+            <div className="os-typing-dots">
               <span className="typing-dot" />
               <span className="typing-dot" />
               <span className="typing-dot" />
@@ -589,25 +729,556 @@ export default function Chat({ onNavigate }) {
   );
 }
 
+/* ═══════════════════════════════════════════════════
+   PAYMENTS WOW CARD
+═══════════════════════════════════════════════════ */
+const SPARK_DATA  = [3.2, 4.1, 3.8, 4.8, 6.2, 7.1, 4.8];
+const MAX_SPARK   = Math.max(...SPARK_DATA);
+const PAY_TARGET  = 4_800_000;
+
+function PaymentsCard({ onAction }) {
+  const [count,       setCount]       = useState(0);
+  const [showInsight, setShowInsight] = useState(false);
+
+  // Animated counter — ease-out cubic over 1.1 s
+  useEffect(() => {
+    const duration = 1100;
+    const start    = performance.now();
+    let raf;
+    const tick = (now) => {
+      const t      = Math.min((now - start) / duration, 1);
+      const eased  = 1 - Math.pow(1 - t, 3);
+      setCount(Math.round(PAY_TARGET * eased));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setTimeout(() => setShowInsight(true), 180);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const fmtLive = (v) => {
+    if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+    if (v >= 1_000)     return `$${Math.round(v / 1_000)}k`;
+    return `$${v}`;
+  };
+
+  return (
+    <div className="chat-pay-card">
+      {/* Label */}
+      <div className="chat-pay-label">Ventas hoy</div>
+
+      {/* Animated counter */}
+      <div className="chat-pay-amount">{fmtLive(count)}</div>
+      <div className="chat-pay-growth">+8% vs ayer · 47 transacciones</div>
+
+      {/* Sparkline */}
+      <div className="chat-pay-spark">
+        {SPARK_DATA.map((v, i) => (
+          <div key={i} className="chat-pay-spark-col">
+            <div
+              className={`chat-pay-spark-bar${i === SPARK_DATA.length - 1 ? ' current' : ''}`}
+              style={{ height: `${(v / MAX_SPARK) * 100}%`, animationDelay: `${i * 0.06}s` }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Channels */}
+      <div className="chat-pay-channels">
+        <span className="chat-pay-ch"><span className="chat-pay-dot white" />Datáfono 58%</span>
+        <span className="chat-pay-ch"><span className="chat-pay-dot coral" />QR 30%</span>
+        <span className="chat-pay-ch"><span className="chat-pay-dot dim"   />Link 12%</span>
+      </div>
+
+      {/* Insight — appears after counter lands */}
+      <div className={`chat-pay-insight${showInsight ? ' visible' : ''}`}>
+        Si el ritmo se mantiene, cierras en <strong>$7.2M</strong> — tu mejor jueves del mes.
+      </div>
+
+      {/* CTA */}
+      <button className="chat-pay-cta" onClick={() => onAction('open_reports')}>
+        Ver detalle completo →
+      </button>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   BANCA WOW CARD
+═══════════════════════════════════════════════════ */
+const BANCA_BALANCE  = 12_840_000;
+const BANCA_INGRESOS = 12_706_400;
+const BANCA_EGRESOS  =    540_000;
+const BANCA_MAX_FLOW = BANCA_INGRESOS; // reference for bar widths
+
+function BancaCard({ onNavigate }) {
+  const [count,      setCount]      = useState(0);
+  const [showFlow,   setShowFlow]   = useState(false);
+  const [showInsight,setShowInsight] = useState(false);
+
+  // Counter: $0 → $12.84M in 1.1s
+  useEffect(() => {
+    const duration = 1100;
+    const start    = performance.now();
+    let raf;
+    const tick = (now) => {
+      const t     = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setCount(Math.round(BANCA_BALANCE * eased));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setTimeout(() => setShowFlow(true),    120);
+        setTimeout(() => setShowInsight(true), 800);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const fmtLive = (v) => {
+    if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
+    if (v >= 1_000)     return `$${Math.round(v / 1_000)}k`;
+    return `$${v}`;
+  };
+  const fmt = (v) => {
+    if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+    return `$${(v / 1_000).toFixed(0)}k`;
+  };
+
+  return (
+    <div className="chat-banca-card">
+      {/* Label */}
+      <div className="chat-pay-label">Cuenta Bold · saldo disponible</div>
+
+      {/* Animated balance */}
+      <div className="chat-pay-amount">{fmtLive(count)}</div>
+      <div className="chat-pay-growth">Actualizado hace 2 min</div>
+
+      {/* Flow bars */}
+      <div className={`chat-banca-flow${showFlow ? ' visible' : ''}`}>
+        {/* Ingresos */}
+        <div className="chat-banca-flow-row">
+          <div className="chat-banca-flow-meta">
+            <span className="chat-banca-arrow in">↑</span>
+            <span className="chat-banca-flow-label">Pagos Bold recibidos</span>
+            <span className="chat-banca-flow-val in">{fmt(BANCA_INGRESOS)}</span>
+          </div>
+          <div className="chat-banca-bar-bg">
+            <div
+              className="chat-banca-bar-fill in"
+              style={{ width: `${(BANCA_INGRESOS / BANCA_MAX_FLOW) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Egresos */}
+        <div className="chat-banca-flow-row">
+          <div className="chat-banca-flow-meta">
+            <span className="chat-banca-arrow out">↓</span>
+            <span className="chat-banca-flow-label">Egresos</span>
+            <span className="chat-banca-flow-val out">−{fmt(BANCA_EGRESOS)}</span>
+          </div>
+          <div className="chat-banca-bar-bg">
+            <div
+              className="chat-banca-bar-fill out"
+              style={{ width: `${(BANCA_EGRESOS / BANCA_MAX_FLOW) * 100}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Insight */}
+      <div className={`chat-pay-insight${showInsight ? ' visible' : ''}`}>
+        Tu próximo pago Bold llega <strong>mañana a las 8:00 AM</strong> — $4.68M estimado. Bold OS ya provisionó $180k para IVA.
+      </div>
+
+      {/* CTA */}
+      <button className="chat-pay-cta" onClick={() => onNavigate('reports', { section: 'banca' })}>
+        Ver movimientos →
+      </button>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   CRÉDITO WOW CARD
+═══════════════════════════════════════════════════ */
+const CREDITO_AMOUNT   = 8_500_000;
+const CREDITO_DAILY    =   265_000;
+const CREDITO_DAYS     = 32;
+const CREDITO_INTEREST =   255_000;
+const CREDITO_RETURN   = 8_400_000;
+
+function CreditoCard({ onAction, onNavigate }) {
+  const [count,       setCount]       = useState(0);
+  const [barWidth,    setBarWidth]    = useState(0);
+  const [showCost,    setShowCost]    = useState(false);
+  const [showInsight, setShowInsight] = useState(false);
+
+  // Counter + capacity bar: $0 → $8.5M in 1.1s
+  useEffect(() => {
+    const duration = 1100;
+    const start    = performance.now();
+    let raf;
+    const tick = (now) => {
+      const t     = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setCount(Math.round(CREDITO_AMOUNT * eased));
+      setBarWidth(Math.round(eased * 100));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setTimeout(() => setShowCost(true),    150);
+        setTimeout(() => setShowInsight(true), 900);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const fmtLive = (v) => {
+    if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+    if (v >= 1_000)     return `$${Math.round(v / 1_000)}k`;
+    return `$${v}`;
+  };
+  const fmt = (v) => {
+    if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+    return `$${(v / 1_000).toFixed(0)}k`;
+  };
+
+  return (
+    <div className="chat-credito-card">
+      {/* Animated counter */}
+      <div className="chat-pay-amount">{fmtLive(count)}</div>
+      <div className="chat-pay-growth">disponibles ahora · desembolso en &lt;2 min</div>
+
+      {/* Capacity bar */}
+      <div className="chat-credito-capacity">
+        <div className="chat-credito-cap-track">
+          <div className="chat-credito-cap-fill" style={{ width: `${barWidth}%` }} />
+        </div>
+        <span className="chat-credito-cap-label">capacidad disponible</span>
+      </div>
+
+      {/* Cost breakdown — staggered */}
+      <div className={`chat-credito-cost${showCost ? ' visible' : ''}`}>
+        <div className="chat-credito-cost-row">
+          <span className="chat-credito-cost-icon">💸</span>
+          <span className="chat-credito-cost-label">Pago diario automático</span>
+          <span className="chat-credito-cost-val">{fmt(CREDITO_DAILY)}</span>
+        </div>
+        <div className="chat-credito-cost-row" style={{ animationDelay: '0.1s' }}>
+          <span className="chat-credito-cost-icon">📅</span>
+          <span className="chat-credito-cost-label">Plazo estimado</span>
+          <span className="chat-credito-cost-val">{CREDITO_DAYS} días</span>
+        </div>
+        <div className="chat-credito-cost-row" style={{ animationDelay: '0.2s' }}>
+          <span className="chat-credito-cost-icon">💰</span>
+          <span className="chat-credito-cost-label">Costo total intereses</span>
+          <span className="chat-credito-cost-val">{fmt(CREDITO_INTEREST)}</span>
+        </div>
+
+        {/* Timeline dots */}
+        <div className="chat-credito-timeline">
+          {Array.from({ length: CREDITO_DAYS }).map((_, i) => (
+            <span key={i} className="chat-credito-dot"
+              style={{ animationDelay: `${0.25 + i * 0.02}s` }} />
+          ))}
+          <span className="chat-credito-timeline-label">32 días · saldado</span>
+        </div>
+      </div>
+
+      {/* Insight */}
+      <div className={`chat-pay-insight${showInsight ? ' visible' : ''}`}>
+        El costo son <strong>{fmt(CREDITO_INTEREST)}</strong>. Si usas este capital en inventario, el retorno estimado es <strong>33x</strong> — {fmt(CREDITO_RETURN)} en utilidad adicional.
+      </div>
+
+      {/* CTAs */}
+      <div className="chat-credito-actions">
+        <button className="chat-credito-cta-primary"
+          onClick={() => onAction('activate_credit')}>
+          Activar {fmt(CREDITO_AMOUNT)}
+        </button>
+        <button className="chat-credito-cta-ghost"
+          onClick={() => onAction('simulate_credit')}>
+          Simular pagos
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   SEGUROS WOW CARD
+═══════════════════════════════════════════════════ */
+const SHIELD_R = 32;
+const SHIELD_C = 2 * Math.PI * SHIELD_R; // 201.06
+
+const COBERTURAS = [
+  { label: 'RC Extracontractual',   prima: '$120k', active: true  },
+  { label: 'Todo Riesgo Negocio',   prima: '$180k', active: true  },
+  { label: 'Accidentes Laborales',  prima: '$95k',  active: true  },
+  { label: 'Sustracción de Dinero', prima: '$65k',  active: false },
+  { label: 'Incendio y Aliados',    prima: '$85k',  active: false },
+];
+
+function SegurosCard({ onAction, onNavigate }) {
+  const [score,      setScore]      = useState(0);
+  const [dashOffset, setDashOffset] = useState(SHIELD_C);
+  const [showRows,   setShowRows]   = useState(false);
+  const [showPrima,  setShowPrima]  = useState(false);
+
+  useEffect(() => {
+    const TARGET   = 60; // 3/5 = 60%
+    const duration = 1200;
+    const start    = performance.now();
+    let raf;
+    const tick = (now) => {
+      const t     = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const s     = Math.round(TARGET * eased);
+      setScore(s);
+      setDashOffset(SHIELD_C * (1 - s / 100));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setTimeout(() => setShowRows(true),  120);
+        setTimeout(() => setShowPrima(true), 900);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <div className="chat-seguros-card">
+      {/* Header: shield + title */}
+      <div className="chat-seg-header">
+        <div className="chat-seg-shield-wrap">
+          <svg width={82} height={82} viewBox="0 0 82 82" style={{ display: 'block' }}>
+            <circle cx={41} cy={41} r={SHIELD_R}
+              fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={5} />
+            <circle cx={41} cy={41} r={SHIELD_R}
+              fill="none" stroke="#ee424e" strokeWidth={5}
+              strokeLinecap="round"
+              strokeDasharray={SHIELD_C}
+              strokeDashoffset={dashOffset}
+              transform="rotate(-90 41 41)"
+            />
+          </svg>
+          <div className="chat-seg-score-overlay">
+            <span className="chat-seg-pct">{score}%</span>
+            <span className="chat-seg-sub-lbl">protegido</span>
+          </div>
+        </div>
+        <div className="chat-seg-title-col">
+          <div className="chat-seg-title">Cobertura actual</div>
+          <div className="chat-seg-meta">3 de 5 riesgos cubiertos</div>
+          <div className="chat-seg-alert-pill">⚠ 2 brechas críticas</div>
+        </div>
+      </div>
+
+      {/* Coverage rows */}
+      <div className={`chat-seg-rows${showRows ? ' visible' : ''}`}>
+        {COBERTURAS.map((c, i) => (
+          <div key={c.label}
+            className={`chat-seg-row${c.active ? '' : ' gap'}`}
+            style={{ animationDelay: `${i * 0.08}s` }}>
+            <span className="chat-seg-icon">{c.active ? '✓' : '!'}</span>
+            <span className="chat-seg-name">{c.label}</span>
+            <span className="chat-seg-prima">{c.prima}/mes</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Prima total */}
+      <div className={`chat-seg-prima-row${showPrima ? ' visible' : ''}`}>
+        Prima total <strong>$395k/mes</strong> · $0 siniestros en 2030
+      </div>
+
+      {/* CTAs */}
+      <div className="chat-seg-actions">
+        <button className="chat-credito-cta-primary"
+          onClick={() => onAction('add_device_coverage')}>
+          Cubrir brechas
+        </button>
+        <button className="chat-credito-cta-ghost"
+          onClick={() => onNavigate('reports', { section: 'seguros' })}>
+          Ver pólizas
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   INVERSIONES WOW CARD
+═══════════════════════════════════════════════════ */
+const INV_BOLSILLOS = 4_200_000;
+const INV_CDT       = 10_000_000;
+const INV_TOTAL     = INV_BOLSILLOS + INV_CDT;
+
+function InversionesCard({ onAction }) {
+  const [count,       setCount]       = useState(0);
+  const [showItems,   setShowItems]   = useState(false);
+  const [showInsight, setShowInsight] = useState(false);
+
+  useEffect(() => {
+    const duration = 1100;
+    const start    = performance.now();
+    let raf;
+    const tick = (now) => {
+      const t     = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setCount(Math.round(INV_TOTAL * eased));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setTimeout(() => setShowItems(true),   150);
+        setTimeout(() => setShowInsight(true), 900);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const fmtLive = (v) => {
+    if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+    if (v >= 1_000)     return `$${Math.round(v / 1_000)}k`;
+    return `$${v}`;
+  };
+  const fmt = (v) => {
+    if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+    return `$${(v / 1_000).toFixed(0)}k`;
+  };
+
+  return (
+    <div className="chat-inv-card">
+      {/* Label */}
+      <div className="chat-pay-label">Inversiones activas</div>
+
+      {/* Animated total */}
+      <div className="chat-pay-amount">{fmtLive(count)}</div>
+      <div className="chat-pay-growth">en 2 productos · rendimiento automático</div>
+
+      {/* Product rows */}
+      <div className={`chat-inv-products${showItems ? ' visible' : ''}`}>
+        {/* Bolsillos */}
+        <div className="chat-inv-product">
+          <span className="chat-inv-product-icon">🪣</span>
+          <div className="chat-inv-product-info">
+            <div className="chat-inv-product-name">Bolsillos Bold</div>
+            <div className="chat-inv-product-meta">3 activos · {fmt(INV_BOLSILLOS)}</div>
+          </div>
+          <div className="chat-inv-rate">4.2%<span className="chat-inv-rate-ea"> EA</span></div>
+        </div>
+
+        <div className="chat-inv-divider" />
+
+        {/* CDT */}
+        <div className="chat-inv-product" style={{ animationDelay: '0.1s' }}>
+          <span className="chat-inv-product-icon">📈</span>
+          <div className="chat-inv-product-info">
+            <div className="chat-inv-product-name">CDT Bold</div>
+            <div className="chat-inv-product-meta">Vence en 45 días · {fmt(INV_CDT)}</div>
+          </div>
+          <div className="chat-inv-rate">8.5%<span className="chat-inv-rate-ea"> EA</span></div>
+        </div>
+      </div>
+
+      {/* Insight */}
+      <div className={`chat-pay-insight${showInsight ? ' visible' : ''}`}>
+        Rendimiento estimado este mes: <strong>+$89k</strong>. Tu dinero está trabajando sin que hagas nada.
+      </div>
+
+      {/* CTAs */}
+      <div className="chat-credito-actions">
+        <button className="chat-credito-cta-primary"
+          onClick={() => onAction('open_cdt')}>
+          Abrir CDT
+        </button>
+        <button className="chat-credito-cta-ghost"
+          onClick={() => onAction('view_bolsillos')}>
+          Ver bolsillos
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────── */
+
+/* ── Message type → badge label ── */
+const TYPE_LABEL = {
+  text:          null,
+  action_done:   { label: 'Ejecutado',   color: 'green'  },
+  opportunity:   { label: 'Oportunidad', color: 'blue'   },
+  payments_card: { label: 'Pagos',       color: 'blue'   },
+  banca_card:    { label: 'Cuenta Bold', color: 'blue'   },
+  credito_card:  { label: 'Crédito',     color: 'blue'   },
+  seguros_card:  { label: 'Seguros',     color: 'blue'   },
+  inversiones_card: { label: 'Inversiones', color: 'blue' },
+};
+
 function ChatMessage({ msg, onAction, doneActions, onNavigate }) {
   const isUser = msg.from === 'user';
 
   if (isUser) {
     return (
       <div className="chat-row user">
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
-          <div className="chat-bubble user">{msg.text}</div>
-          <div className="chat-time user">{msg.time}</div>
+        <div className="chat-cmd-wrap">
+          <div className="chat-cmd">{msg.text}</div>
+          {msg.time && <div className="chat-time user">{msg.time}</div>}
         </div>
       </div>
     );
   }
 
+  const badge = TYPE_LABEL[msg.type];
+
   return (
-    <div className="chat-row bold">
-      <div className="chat-avatar"><IconSparkle width={12} height={12} /></div>
-      <div className="chat-col">
-        {msg.text && <div className="chat-bubble bold">{msg.text}</div>}
+    <div className="os-msg">
+      <div className="os-msg-header">
+        <span className="os-msg-source">
+          <IconSparkle width={9} height={9} />
+          Bold OS
+        </span>
+        {badge && (
+          <span className={`os-msg-badge ${badge.color}`}>{badge.label}</span>
+        )}
+        {msg.time && <span className="os-msg-time">{msg.time}</span>}
+      </div>
+      <div className="os-msg-body">
+        {msg.text && <div className="os-msg-text">{msg.text}</div>}
+
+        {/* Payments wow card */}
+        {msg.type === 'payments_card' && (
+          <PaymentsCard onAction={onAction} />
+        )}
+
+        {/* Banca wow card */}
+        {msg.type === 'banca_card' && (
+          <BancaCard onNavigate={onNavigate} />
+        )}
+
+        {/* Crédito wow card */}
+        {msg.type === 'credito_card' && (
+          <CreditoCard onAction={onAction} onNavigate={onNavigate} />
+        )}
+
+        {/* Seguros wow card */}
+        {msg.type === 'seguros_card' && (
+          <SegurosCard onAction={onAction} onNavigate={onNavigate} />
+        )}
+
+        {/* Inversiones wow card */}
+        {msg.type === 'inversiones_card' && (
+          <InversionesCard onAction={onAction} />
+        )}
 
         {/* Opportunity card */}
         {msg.type === 'opportunity' && msg.opp && (
@@ -674,7 +1345,6 @@ function ChatMessage({ msg, onAction, doneActions, onNavigate }) {
           </div>
         )}
 
-        <div className="chat-time bold">{msg.time}</div>
       </div>
     </div>
   );

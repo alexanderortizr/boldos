@@ -53,7 +53,7 @@ export function StoreProvider({ children }) {
       },
       ...l,
     ]);
-    pushToast({ level: 'success', title: 'Compra ejecutada', body: `Bold Capital desembolsó ${formatCOP(opp.metrics.amount)} a ${opp.supplier}` });
+    pushToast({ level: 'success', title: 'Compra ejecutada', body: `Bold desembolsó ${formatCOP(opp.metrics.amount)} a ${opp.supplier}` });
   }, [pushToast]);
 
   const ignoreOpportunity = useCallback((opp) => {

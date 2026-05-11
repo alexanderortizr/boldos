@@ -1,42 +1,35 @@
 import { useState } from 'react';
 import { useStore } from '../store';
 
-const CATEGORIES = ['Todos', 'Platos fuertes', 'Sopas', 'Entradas', 'Bebidas'];
+const CATEGORIES = ['Platos fuertes', 'Sopas', 'Entradas', 'Bebidas'];
+const TABS = ['Todos', 'Favoritos', ...CATEGORIES];
 
 const PRODUCTS_INIT = [
-  { id: 'p1', name: 'Bandeja paisa',       price: 28000,  category: 'Platos fuertes', sales: 142, active: true  },
-  { id: 'p2', name: 'Ajiaco bogotano',     price: 24000,  category: 'Sopas',          sales: 98,  active: true  },
-  { id: 'p3', name: 'Limonada de coco',    price: 8000,   category: 'Bebidas',        sales: 87,  active: true  },
-  { id: 'p4', name: 'Empanadas x3',        price: 12000,  category: 'Entradas',       sales: 74,  active: true  },
-  { id: 'p5', name: 'Arroz con pollo',     price: 22000,  category: 'Platos fuertes', sales: 68,  active: true  },
-  { id: 'p6', name: 'Sancocho de gallina', price: 26000,  category: 'Sopas',          sales: 41,  active: true  },
-  { id: 'p7', name: 'Patacones con hogao', price: 9000,   category: 'Entradas',       sales: 38,  active: true  },
-  { id: 'p8', name: 'Jugo natural',        price: 6000,   category: 'Bebidas',        sales: 29,  active: true  },
-  { id: 'p9', name: 'Cazuela de mariscos', price: 35000,  category: 'Platos fuertes', sales: 0,   active: true  },
-  { id: 'p10', name: 'Lulada',             price: 7000,   category: 'Bebidas',        sales: 0,   active: true  },
-  { id: 'p11', name: 'Agua con gas',       price: 3500,   category: 'Bebidas',        sales: 0,   active: false },
+  { id: 'p1',  name: 'Bandeja paisa',       price: 28000,  category: 'Platos fuertes', sales: 142, active: true,  fav: true,  emoji: '🍽️', bg: '#1a1a2e' },
+  { id: 'p2',  name: 'Ajiaco bogotano',     price: 24000,  category: 'Sopas',          sales: 98,  active: true,  fav: false, emoji: '🥘', bg: '#1e3220' },
+  { id: 'p3',  name: 'Limonada de coco',    price: 8000,   category: 'Bebidas',        sales: 87,  active: true,  fav: true,  emoji: '🥥', bg: '#1a3040' },
+  { id: 'p4',  name: 'Empanadas x3',        price: 12000,  category: 'Entradas',       sales: 74,  active: true,  fav: false, emoji: '🫔', bg: '#2e1e0a' },
+  { id: 'p5',  name: 'Arroz con pollo',     price: 22000,  category: 'Platos fuertes', sales: 68,  active: true,  fav: false, emoji: '🍗', bg: '#1e1030' },
+  { id: 'p6',  name: 'Sancocho de gallina', price: 26000,  category: 'Sopas',          sales: 41,  active: true,  fav: false, emoji: '🍲', bg: '#0e2030' },
+  { id: 'p7',  name: 'Patacones con hogao', price: 9000,   category: 'Entradas',       sales: 38,  active: true,  fav: false, emoji: '🍌', bg: '#1e2a10' },
+  { id: 'p8',  name: 'Jugo natural',        price: 6000,   category: 'Bebidas',        sales: 29,  active: true,  fav: false, emoji: '🍊', bg: '#2e1010' },
+  { id: 'p9',  name: 'Cazuela de mariscos', price: 35000,  category: 'Platos fuertes', sales: 0,   active: true,  fav: false, emoji: '🦐', bg: '#0e2828' },
+  { id: 'p10', name: 'Lulada',              price: 7000,   category: 'Bebidas',        sales: 0,   active: true,  fav: false, emoji: '🍹', bg: '#2a1020' },
+  { id: 'p11', name: 'Agua con gas',        price: 3500,   category: 'Bebidas',        sales: 0,   active: false, fav: false, emoji: '💧', bg: '#101828' },
 ];
 
-const formatPrice = (v) => `$${v.toLocaleString('es-CO')}`;
-
-function ProductInitials({ name }) {
-  const words = name.trim().split(' ');
-  const initials = words.length >= 2
-    ? words[0][0] + words[1][0]
-    : words[0].slice(0, 2);
-  return <span>{initials.toUpperCase()}</span>;
-}
+const fmt = (v) => `$${v.toLocaleString('es-CO')}`;
 
 export default function Catalog({ onBack }) {
   const { pushToast, openModal } = useStore();
   const [products, setProducts] = useState(PRODUCTS_INIT);
-  const [category, setCategory] = useState('Todos');
-  const [search, setSearch] = useState('');
+  const [tab, setTab]           = useState('Todos');
+  const [search, setSearch]     = useState('');
 
-  const toggle = (id) =>
-    setProducts((ps) =>
-      ps.map((p) => (p.id === id ? { ...p, active: !p.active } : p))
-    );
+  const toggleFav = (id, e) => {
+    e.stopPropagation();
+    setProducts((ps) => ps.map((p) => p.id === id ? { ...p, fav: !p.fav } : p));
+  };
 
   const addProduct = () =>
     openModal({
@@ -53,8 +46,8 @@ export default function Catalog({ onBack }) {
       title: p.name,
       body: 'Edita el precio o la categoría de este producto.',
       details: [
-        { label: 'Categoría', value: p.category },
-        { label: 'Precio',    value: formatPrice(p.price) },
+        { label: 'Categoría',  value: p.category },
+        { label: 'Precio',     value: fmt(p.price) },
         { label: 'Ventas mes', value: `${p.sales} unidades` },
       ],
       confirmLabel: 'Guardar cambios',
@@ -64,12 +57,11 @@ export default function Catalog({ onBack }) {
     });
 
   const filtered = products.filter((p) => {
-    const matchCat = category === 'Todos' || p.category === category;
+    if (tab === 'Favoritos') return p.fav && p.name.toLowerCase().includes(search.toLowerCase());
+    const matchCat    = tab === 'Todos' || p.category === tab;
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
-
-  const inactive = products.filter((p) => p.active && p.sales === 0).length;
 
   return (
     <>
@@ -82,15 +74,7 @@ export default function Catalog({ onBack }) {
           </svg>
         </button>
         <div className="cat-header-title">Catálogo</div>
-        <button className="cat-add-btn" onClick={addProduct}>+ Agregar</button>
-      </div>
-
-      {/* ── Stats strip ── */}
-      <div className="cat-stats">
-        <span className="cat-stat-main">{products.filter(p => p.active).length} productos activos</span>
-        {inactive > 0 && (
-          <span className="cat-stat-warn">· {inactive} sin ventas</span>
-        )}
+        <div style={{ width: 34 }} />
       </div>
 
       {/* ── Search ── */}
@@ -107,47 +91,47 @@ export default function Catalog({ onBack }) {
         />
       </div>
 
-      {/* ── Category filter ── */}
-      <div className="cat-filters">
-        {CATEGORIES.map((c) => (
+      {/* ── Tabs ── */}
+      <div className="cat-tabs">
+        {TABS.map((t) => (
           <button
-            key={c}
-            className={`cat-filter-chip ${category === c ? 'active' : ''}`}
-            onClick={() => setCategory(c)}
+            key={t}
+            className={`cat-tab${tab === t ? ' active' : ''}`}
+            onClick={() => setTab(t)}
           >
-            {c}
+            {t}
           </button>
         ))}
+        <button className="cat-tab-add" onClick={addProduct}>+</button>
       </div>
 
-      {/* ── Product list ── */}
+      {/* ── Product cards ── */}
       <div className="cat-list" style={{ paddingBottom: 120 }}>
         {filtered.length === 0 && (
-          <div className="cat-empty">Sin resultados para "{search}"</div>
+          <div className="cat-empty">Sin resultados</div>
         )}
         {filtered.map((p) => (
-          <div key={p.id} className={`cat-item ${!p.active ? 'inactive' : ''}`}>
-            <div className="cat-item-avatar">
-              <ProductInitials name={p.name} />
-            </div>
-            <button className="cat-item-body" onClick={() => editProduct(p)}>
-              <div className="cat-item-name">{p.name}</div>
-              <div className="cat-item-meta">
-                <span className="cat-item-category">{p.category}</span>
-                {p.sales > 0
-                  ? <span className="cat-item-sales">{p.sales} ventas este mes</span>
-                  : <span className="cat-item-no-sales">Sin ventas en 30 días</span>}
-              </div>
-            </button>
-            <div className="cat-item-right">
-              <div className="cat-item-price">{formatPrice(p.price)}</div>
+          <div
+            key={p.id}
+            className={`cat-card${!p.active ? ' inactive' : ''}`}
+            onClick={() => editProduct(p)}
+          >
+            {/* Square image with emoji */}
+            <div className="cat-card-img" style={{ background: p.bg }}>
+              <span className="cat-card-emoji">{p.emoji}</span>
               <button
-                className={`cat-toggle ${p.active ? 'on' : 'off'}`}
-                onClick={() => toggle(p.id)}
-                aria-label={p.active ? 'Desactivar' : 'Activar'}
+                className={`cat-card-heart${p.fav ? ' active' : ''}`}
+                onClick={(e) => toggleFav(p.id, e)}
+                aria-label="Favorito"
               >
-                <span className="cat-toggle-thumb" />
+                {p.fav ? '❤️' : '🤍'}
               </button>
+            </div>
+
+            {/* Info */}
+            <div className="cat-card-info">
+              <div className="cat-card-name">{p.name}</div>
+              <div className="cat-card-price">{fmt(p.price)}</div>
             </div>
           </div>
         ))}

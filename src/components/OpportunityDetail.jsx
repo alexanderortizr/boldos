@@ -27,7 +27,7 @@ export default function OpportunityDetail({ onBack }) {
   const accept = () => {
     openModal({
       title: 'Confirmar compra',
-      body: 'Bold Capital desembolsará el monto al proveedor y empezará el pago automático con tus ventas diarias.',
+      body: 'Bold desembolsará el monto al proveedor y empezará el pago automático con tus ventas diarias.',
       details: [
         { label: 'Proveedor', value: opp.supplier },
         { label: 'Monto', value: formatCOPFull(m.amount) },
