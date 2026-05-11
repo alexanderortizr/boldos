@@ -613,6 +613,7 @@ a { color: inherit; text-decoration: none; }
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 .action-row::-webkit-scrollbar { display: none; }
 .action-chip {
@@ -890,6 +891,7 @@ a { color: inherit; text-decoration: none; }
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 .chip-row::-webkit-scrollbar { display: none; }
 .chip {
@@ -1582,7 +1584,8 @@ a { color: inherit; text-decoration: none; }
 .chat-shell {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 92px); /* mobile: nav is fixed */
+  /* dvh = dynamic viewport height: tracks actual visible area on iOS Safari */
+  height: calc(100dvh - 92px);
   position: relative;
 }
 
@@ -1678,6 +1681,7 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid var(--border);
   background: var(--bg);
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x; /* iOS: allow horizontal swipe on this row */
 }
 .chat-shortcuts::-webkit-scrollbar { display: none; }
 .chat-shortcut-chip {
@@ -1731,6 +1735,8 @@ a { color: inherit; text-decoration: none; }
   flex-direction: column;
   gap: 2px;
   scrollbar-width: none;
+  touch-action: pan-y; /* iOS: allow vertical scroll in message area */
+  -webkit-overflow-scrolling: touch;
 }
 .chat-messages::-webkit-scrollbar { display: none; }
 
@@ -2458,7 +2464,7 @@ a { color: inherit; text-decoration: none; }
 .rep-shell {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 92px);
+  height: calc(100dvh - 92px);
 }
 .rep-header {
   display: flex;
@@ -2923,6 +2929,7 @@ a { color: inherit; text-decoration: none; }
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 .rep-quick-qs::-webkit-scrollbar { display: none; }
 .rep-quick-chip {
@@ -2985,6 +2992,7 @@ a { color: inherit; text-decoration: none; }
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
   flex-shrink: 0;
 }
 .rep-product-tabs::-webkit-scrollbar { display: none; }
@@ -3187,6 +3195,7 @@ a { color: inherit; text-decoration: none; }
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
   border-bottom: 1px solid var(--border);
 }
 .cat-tabs::-webkit-scrollbar { display: none; }
@@ -4149,7 +4158,7 @@ a { color: inherit; text-decoration: none; }
 .gd-shell {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 92px);
+  height: calc(100dvh - 92px);
   background: var(--bg);
 }
 
