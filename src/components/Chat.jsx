@@ -440,6 +440,20 @@ export default function Chat({ onNavigate }) {
   const [doneActions, setDoneActions] = useState(new Set());
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+  const shortcutsRef = useRef(null);
+
+  /* Convierte scroll vertical del mouse en scroll horizontal en los chips */
+  useEffect(() => {
+    const el = shortcutsRef.current;
+    if (!el) return;
+    const onWheel = (e) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -583,7 +597,7 @@ export default function Chat({ onNavigate }) {
       </div>
 
       {/* Product shortcuts */}
-      <div className="chat-shortcuts">
+      <div className="chat-shortcuts" ref={shortcutsRef}>
         {[
           { label: 'Pagos',    paymentsCard: true                          },
           { label: 'Banca',    bancaCard: true                             },
